@@ -455,8 +455,8 @@ export const Gnomelet = GObject.registerClass(
                 this._vy += GRAVITY;
             }
 
-            // Stop movement if idle (prevents sliding)
-            if (this._state === State.IDLE) {
+            // Stop movement if idle or sleeping
+            if (this._state === State.IDLE || this._state === State.SLEEP) {
                 this._vx = 0;
             }
 
@@ -794,14 +794,30 @@ export const Gnomelet = GObject.registerClass(
                 this._vy = 0;
                 return;
             }
-            let r = Math.random();
-            if (r < 0.6) {
+
+            const wProb = this._settings.get_int('walk-probability');
+            const rProb = this._settings.get_int('run-probability');
+            const iProb = this._settings.get_int('idle-probability');
+            const sProb = this._settings.get_int('sleep-probability');
+            const total = wProb + rProb + iProb + sProb;
+
+            let r = Math.random() * (total || 100);
+
+            if (r < wProb) {
                 this._state = State.WALKING;
                 let dir = (Math.random() > 0.5) ? 1 : -1;
                 this._vx = dir * WALK_SPEED;
-            } else {
+            } else if (r < wProb + rProb) {
+                this._state = State.RUNNING;
+                let dir = (Math.random() > 0.5) ? 1 : -1;
+                const runSpeed = this._settings.get_int('run-speed') || 6;
+                this._vx = dir * runSpeed;
+            } else if (r < wProb + rProb + iProb) {
                 this._state = State.IDLE;
                 this._idleTimer = Math.random() * 60 + 20;
+            } else {
+                this._state = State.SLEEP;
+                this._idleTimer = Math.random() * 200 + 100; // Sleep longer
             }
         }
 
@@ -828,8 +844,25 @@ export const Gnomelet = GObject.registerClass(
                     let idx = Math.floor(this._animationTimer / speed) % walkFrames.length;
                     frameIndex = walkFrames[idx];
                     break;
+                case State.RUNNING:
+                    let runFrames = [0, 1, 2, 3];
+                    let rSpeed = 2; // Run faster!
+                    let rIdx = Math.floor(this._animationTimer / rSpeed) % runFrames.length;
+                    frameIndex = runFrames[rIdx];
+                    break;
                 case State.IDLE:
                     frameIndex = 4;
+                    break;
+                case State.SLEEP:
+                    // Simple "breathing" effect using idle frame (4) and jumping frame (5) as a hack
+                    // Or if we have a frame 8/9 we could use those. For now let's use 4.
+                    frameIndex = 4; 
+                    if (Math.floor(this._animationTimer / 20) % 2 === 0) {
+                        frameIndex = 4;
+                    } else {
+                        // slightly different frame for breathing if available
+                        frameIndex = (this._frameImages[5]) ? 4 : 4; 
+                    }
                     break;
                 case State.JUMPING:
                 case State.FALLING:

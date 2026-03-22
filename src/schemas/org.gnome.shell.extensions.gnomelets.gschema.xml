@@ -76,5 +76,30 @@
       <summary>Jump Power</summary>
       <description>The vertical force of the jump.</description>
     </key>
+    <key name="walk-probability" type="i">
+      <default>50</default>
+      <summary>Walk Probability</summary>
+      <description>Chance (0-100) of picking a walk action.</description>
+    </key>
+    <key name="run-probability" type="i">
+      <default>10</default>
+      <summary>Run Probability</summary>
+      <description>Chance (0-100) of picking a run action.</description>
+    </key>
+    <key name="idle-probability" type="i">
+      <default>30</default>
+      <summary>Idle Probability</summary>
+      <description>Chance (0-100) of picking an idle action.</description>
+    </key>
+    <key name="sleep-probability" type="i">
+      <default>10</default>
+      <summary>Sleep Probability</summary>
+      <description>Chance (0-100) of picking a sleep action.</description>
+    </key>
+    <key name="run-speed" type="i">
+      <default>6</default>
+      <summary>Run Speed</summary>
+      <description>Speed of the character when running.</description>
+    </key>
   </schema>
 </schemalist>

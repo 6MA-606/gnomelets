@@ -5,9 +5,11 @@ export const WALK_SPEED = 3;          // Horizontal pixels per frame
 export const State = {
     FALLING: 'FALLING',
     WALKING: 'WALKING',
+    RUNNING: 'RUNNING',
     IDLE: 'IDLE',
     JUMPING: 'JUMPING',
-    DRAGGING: 'DRAGGING'
+    DRAGGING: 'DRAGGING',
+    SLEEP: 'SLEEP'
 };
 
 /**

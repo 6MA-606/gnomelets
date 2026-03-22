@@ -209,6 +209,46 @@ export default class DesktopGnomeletsPreferences extends ExtensionPreferences {
         interactionRow.add_suffix(interactionSwitch);
         group.add(interactionRow);
 
+        // Movement Probabilities Group
+        const probGroup = new Adw.PreferencesGroup({ 
+            title: 'Behavior Probabilities (%)',
+            description: 'The chance of each action being chosen after landing or when idle ends.'
+        });
+        page.add(probGroup);
+
+        const addProbRow = (title, key) => {
+            const row = new Adw.ActionRow({ title });
+            const spin = new Gtk.SpinButton({
+                adjustment: new Gtk.Adjustment({
+                    lower: 0,
+                    upper: 100,
+                    step_increment: 1,
+                }),
+                valign: Gtk.Align.CENTER,
+            });
+            settings.bind(key, spin, 'value', Gio.SettingsBindFlags.DEFAULT);
+            row.add_suffix(spin);
+            probGroup.add(row);
+        };
+
+        addProbRow('Walk Probability', 'walk-probability');
+        addProbRow('Run Probability', 'run-probability');
+        addProbRow('Idle Probability', 'idle-probability');
+        addProbRow('Sleep Probability', 'sleep-probability');
+
+        const runSpeedRow = new Adw.ActionRow({ title: 'Run Speed' });
+        const runSpeedSpin = new Gtk.SpinButton({
+            adjustment: new Gtk.Adjustment({
+                lower: 4,
+                upper: 15,
+                step_increment: 1,
+            }),
+            valign: Gtk.Align.CENTER,
+        });
+        settings.bind('run-speed', runSpeedSpin, 'value', Gio.SettingsBindFlags.DEFAULT);
+        runSpeedRow.add_suffix(runSpeedSpin);
+        probGroup.add(runSpeedRow);
+
         // Show Indicator
         const indicatorRow = new Adw.ActionRow({
             title: 'Show Menu Indicator',
