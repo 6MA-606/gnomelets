@@ -225,6 +225,28 @@ export default class DesktopGnomeletsPreferences extends ExtensionPreferences {
         const actionsGroup = new Adw.PreferencesGroup({ title: 'Actions' });
         page.add(actionsGroup);
 
+        const openFolderRow = new Adw.ActionRow({ 
+            title: 'Open Images Folder',
+            subtitle: 'Add or remove custom character folders here'
+        });
+        const openFolderButton = new Gtk.Button({
+            label: 'Open Folder',
+            valign: Gtk.Align.CENTER,
+        });
+
+        openFolderButton.connect('clicked', () => {
+            const file = Gio.File.new_for_uri(import.meta.url);
+            const imagesDir = file.get_parent().get_child('images');
+            try {
+                Gio.AppInfo.launch_default_for_uri(imagesDir.get_uri(), null);
+            } catch (e) {
+                console.error('Failed to open images folder:', e);
+            }
+        });
+
+        openFolderRow.add_suffix(openFolderButton);
+        actionsGroup.add(openFolderRow);
+
         const respawnRow = new Adw.ActionRow({ title: 'Reset State' });
         const respawnButton = new Gtk.Button({
             label: 'Respawn Gnomelets',

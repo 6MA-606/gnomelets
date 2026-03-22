@@ -10,7 +10,7 @@ import { GnomeletIndicator } from './indicator.js';
 export default class DesktopGnomeletsExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
-        this._manager = new GnomeletManager(this._settings);
+        this._manager = new GnomeletManager(this._settings, () => this.openPreferences());
         this._manager.enable();
 
         this._indicator = null;

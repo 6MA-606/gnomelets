@@ -15,10 +15,11 @@ import { isWindowMaximized, UPDATE_INTERVAL_MS } from './utils.js';
  */
 export const GnomeletManager = GObject.registerClass(
     class GnomeletManager extends GObject.Object {
-        _init(settings) {
+        _init(settings, openPrefs) {
             super._init();
             this._gnomelets = [];
             this._settings = settings;
+            this._openPrefs = openPrefs;
             this._windows = [];
             this._timerId = 0;
             this._cancellable = null;
@@ -339,7 +340,7 @@ export const GnomeletManager = GObject.registerClass(
                     if (!res) break;
                     // Bind resource provider
                     let provider = (t) => this._pickResource(t);
-                    this._gnomelets.push(new Gnomelet(res.type, res.frames, res.w, res.h, this._settings, provider));
+                    this._gnomelets.push(new Gnomelet(res.type, res.frames, res.w, res.h, this._settings, provider, this._openPrefs));
                 }
             } else if (count < current) {
                 for (let i = 0; i < (current - count); i++) {
@@ -382,7 +383,7 @@ export const GnomeletManager = GObject.registerClass(
                 if (!instanceRes) instanceRes = this._pickResource(); // Fallback if somehow both failed (e.g. valid types empty)
                 if (!instanceRes) break;
 
-                let p = new Gnomelet(instanceRes.type, instanceRes.frames, instanceRes.w, instanceRes.h, this._settings, provider);
+                let p = new Gnomelet(instanceRes.type, instanceRes.frames, instanceRes.w, instanceRes.h, this._settings, provider, this._openPrefs);
                 if (stateToUse && stateToUse[i]) p.deserialize(stateToUse[i]);
                 this._gnomelets.push(p);
             }

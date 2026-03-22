@@ -4,6 +4,7 @@ import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as DND from 'resource:///org/gnome/shell/ui/dnd.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {
     State,
@@ -20,17 +21,19 @@ import {
  */
 export const Gnomelet = GObject.registerClass(
     class Gnomelet extends GObject.Object {
-        _init(typeName, frameImages, frameWidth, frameHeight, settings, resourceProvider) {
+        _init(typeName, frameImages, frameWidth, frameHeight, settings, resourceProvider, openPrefs) {
             super._init();
 
             this._typeName = typeName;
             this._settings = settings;
             this._resourceProvider = resourceProvider;
+            this._openPrefs = openPrefs;
 
             // --- State Initialization ---
             this._state = State.FALLING;
             this._vx = 0; // Velocity X
             this._vy = 0; // Velocity Y
+            this._isFrozen = false; // Forced idle state
 
             // --- Animation State ---
             this._frame = 0; // Current sprite frame index
@@ -63,7 +66,7 @@ export const Gnomelet = GObject.registerClass(
 
             this.actor = new St.Widget({
                 visible: true,
-                reactive: false,
+                reactive: true, // Always reactive for context menu
                 layout_manager: new Clutter.BinLayout(),
             });
             this.actor.add_child(this._icon);
@@ -79,9 +82,83 @@ export const Gnomelet = GObject.registerClass(
             this._resetLayer();
             this.actor.set_position(this._x, this._y);
 
+            // Context Menu Listener
+            this.actor.connect('button-press-event', (actor, event) => {
+                if (event.get_button() === 3) { // Right Click
+                    this._showContextMenu(event);
+                    return Clutter.EVENT_STOP;
+                }
+                return Clutter.EVENT_PROPAGATE;
+            });
+
             this._updateInteraction();
             this.updateJumpPower();
             this._updateAnimation();
+        }
+
+        /**
+         * Shows a context menu for the gnomelet at the mouse position.
+         */
+        _showContextMenu(event) {
+            if (this._menu) {
+                this._menu.close();
+            }
+
+            let [x, y] = event.get_coords();
+            let dummy = new Clutter.Actor({ x, y });
+            Main.uiGroup.add_child(dummy);
+
+            this._menu = new PopupMenu.PopupMenu(dummy, 0, St.Side.TOP);
+            this._menu.actor.add_style_class_name('gnomelet-context-menu');
+            
+            // Ensure menu is in a visible layer
+            Main.uiGroup.add_child(this._menu.actor);
+
+            // Use MenuManager to handle clicking outside / focus grab
+            if (!this._menuManager) {
+                this._menuManager = new PopupMenu.PopupMenuManager(this);
+            }
+            this._menuManager.addMenu(this._menu);
+
+            // Toggle Movement Item
+            let idleLabel = this._isFrozen ? "Resume Movement" : "Stay Idle";
+            let idleItem = new PopupMenu.PopupMenuItem(idleLabel);
+            idleItem.connect('activate', () => {
+                this._isFrozen = !this._isFrozen;
+                if (this._isFrozen) {
+                    this._state = State.IDLE;
+                    this._vx = 0;
+                    this._vy = 0;
+                } else {
+                    this._pickNewAction();
+                }
+            });
+            this._menu.addMenuItem(idleItem);
+
+            // Respawn Item
+            let respawnItem = new PopupMenu.PopupMenuItem("Respawn");
+            respawnItem.connect('activate', () => {
+                this._respawn();
+            });
+            this._menu.addMenuItem(respawnItem);
+
+            this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+            // Settings Item
+            let settingsItem = new PopupMenu.PopupMenuItem("Settings");
+            settingsItem.connect('activate', () => {
+                if (this._openPrefs) this._openPrefs();
+            });
+            this._menu.addMenuItem(settingsItem);
+
+            this._menu.open();
+
+            // Auto-close when clicking outside
+            this._menu.connect('menu-closed', () => {
+                this._menu.destroy();
+                this._menu = null;
+                dummy.destroy();
+            });
         }
 
         // Property to define facing based on Velocity X
@@ -711,6 +788,12 @@ export const Gnomelet = GObject.registerClass(
          * Decides the next action when on the ground.
          */
         _pickNewAction() {
+            if (this._isFrozen) {
+                this._state = State.IDLE;
+                this._vx = 0;
+                this._vy = 0;
+                return;
+            }
             let r = Math.random();
             if (r < 0.6) {
                 this._state = State.WALKING;
