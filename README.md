@@ -1,6 +1,7 @@
-# Gnomelets 🎅
+# Gnomelets Fork 🎅
 
-Brighten up your GNOME desktop with **Gnomelets**! This extension brings small, animated 2D characters to life, letting them roam freely across your screen. They walk, jump, and even balance on top of your open windows.
+Brighten up your GNOME desktop with **Gnomelets Fork**! This is a fork of the original Gnomelets extension.
+This extension brings small, animated 2D characters to life, letting them roam freely across your screen. They walk, jump, and even balance on top of your open windows.
 
 
 Watch as they fall from the top of the screen, land on your active windows, and explore your desktop environment with charming pixel-art animations.
@@ -53,10 +54,10 @@ Want to add your own character? It's easy!
 
 ## Installation
 
-1.  Download the extension.
-2.  Install it via `gnome-extensions install` or copy the folder to `~/.local/share/gnome-shell/extensions/`.
-3.  Enable it using the Extensions app or `gnome-extensions enable`.
-4.  Open the settings to choose your favorite Gnomelet!
+1.  Clone this repository.
+2.  Run `./scripts/install.sh`.
+3.  Restart GNOME Shell (Alt+F2, then type `r` and press Enter, or log out and log back in on Wayland).
+4.  Enable the extension in the Extensions app or through `gnome-extensions enable gnomelets-fork@6MA-606.github.com`.
 
 ---
 *Created with ❤️ for the GNOME community.*

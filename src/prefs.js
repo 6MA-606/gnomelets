@@ -105,6 +105,14 @@ export default class DesktopGnomeletsPreferences extends ExtensionPreferences {
         scaleRow.add_suffix(scaleSpin);
         group.add(scaleRow);
 
+        // Allow Off-Screen Row
+        const offscreenRow = new Adw.SwitchRow({
+            title: 'Allow Walking Off-Screen',
+            subtitle: 'Let characters walk past screen boundaries',
+        });
+        settings.bind('allow-offscreen', offscreenRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        group.add(offscreenRow);
+
         // Jump Power Row
         const jumpRow = new Adw.ActionRow({ title: 'Jump Power' });
         const jumpSpin = new Gtk.SpinButton({

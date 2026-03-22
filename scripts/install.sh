@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-UUID="gnomelets@mcast.gnomext.com"
+UUID="gnomelets-fork@6MA-606.github.com"
 INSTALL_DIR="$HOME/.local/share/gnome-shell/extensions/$UUID"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"

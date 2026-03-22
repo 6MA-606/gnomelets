@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="gnomelets">
-  <schema id="org.gnome.shell.extensions.gnomelets" path="/org/gnome/shell/extensions/gnomelets/">
+<schemalist gettext-domain="gnomelets-fork">
+  <schema id="org.gnome.shell.extensions.gnomelets-fork" path="/org/gnome/shell/extensions/gnomelets-fork/">
     <key name="floor-z-order" type="s">
       <choices>
         <choice value="allow"/>
@@ -37,7 +37,7 @@
       </description>
     </key>
     <key name="gnomelet-type" type="as">
-      <default>['Santa']</default>
+      <default>['Black Kitten']</default>
       <summary>Gnomelet Characters</summary>
       <description>The kinds of gnomelet to display. If multiple are selected, they will be chosen randomly.</description>
     </key>
@@ -100,6 +100,11 @@
       <default>6</default>
       <summary>Run Speed</summary>
       <description>Speed of the character when running.</description>
+    </key>
+    <key name="allow-offscreen" type="b">
+      <default>false</default>
+      <summary>Allow Walking Off-Screen</summary>
+      <description>If true, gnomelets can walk past the horizontal screen boundaries and wrap around. If false, they bounce/stay within the screen.</description>
     </key>
   </schema>
 </schemalist>

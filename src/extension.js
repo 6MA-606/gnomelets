@@ -42,7 +42,7 @@ export default class DesktopGnomeletsExtension extends Extension {
         if (show) {
             if (!this._indicator) {
                 this._indicator = new GnomeletIndicator(this);
-                Main.panel.addToStatusArea('gnomelets-indicator', this._indicator);
+                Main.panel.addToStatusArea('gnomelets-fork-indicator', this._indicator);
             }
         } else {
             if (this._indicator) {

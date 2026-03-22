@@ -61,7 +61,6 @@ export const Gnomelet = GObject.registerClass(
                 visible: true,
                 reactive: false,
                 icon_size: iconSize,
-                style: 'padding: 0px; object-fit: fill;',
             });
 
             this.actor = new St.Widget({
@@ -176,7 +175,6 @@ export const Gnomelet = GObject.registerClass(
         }
 
         /**
-         * Calculates dimensions based on settings and interface scale.
          * Returns the icon_size parameter to be used for St.Icon.
          */
         _updateDimensions() {
@@ -492,24 +490,36 @@ export const Gnomelet = GObject.registerClass(
                 this._vy = 0;
             }
 
-            // --- Logic: Reposition if walking off floor ---
+            // --- Logic: Reposition if walking off screen/floor ---
+            let allowOffscreen = this._settings.get_boolean('allow-offscreen');
+            let maxX = global.stage.width;
             let onFloorLevel = (this._y + this._displayH) >= floorY - 10;
 
-            if (onFloorLevel) {
-                // If walking outside horizontal bounds of the stage, respawn at the top
-                if (this._x < -this._displayW || this._x > global.stage.width) {
-                    this._respawn();
-                    return;
+            if (allowOffscreen) {
+                // Wrap around logic
+                if (this._x > maxX) {
+                    this._x = -this._displayW;
+                } else if (this._x < -this._displayW) {
+                    this._x = maxX;
                 }
             } else {
-                // Routine Wall Bounce when in air or on windows
-                let maxX = global.stage.width - this._displayW;
-                if (this._x < 0) {
-                    this._x = 0;
-                    this._vx *= -1;
-                } else if (this._x > maxX) {
-                    this._x = maxX;
-                    this._vx *= -1;
+                // Stay on screen logic
+                if (onFloorLevel) {
+                    // If walking outside horizontal bounds of the stage, respawn at the top
+                    if (this._x < -this._displayW || this._x > maxX) {
+                        this._respawn();
+                        return;
+                    }
+                } else {
+                    // Routine Wall Bounce when in air or on windows
+                    let bounceMaxX = maxX - this._displayW;
+                    if (this._x < 0) {
+                        this._x = 0;
+                        this._vx *= -1;
+                    } else if (this._x > bounceMaxX) {
+                        this._x = bounceMaxX;
+                        this._vx *= -1;
+                    }
                 }
             }
 
@@ -858,7 +868,7 @@ export const Gnomelet = GObject.registerClass(
                     frameIndex = 4;
                     break;
                 case State.SLEEP:
-                    let sleepFrames = [4, 8, 4, 9];
+                    let sleepFrames = [8, 9];
                     // Fallback to idle frame if sleep frames don't exist
                     if (!this._frameImages[8]) {
                         sleepFrames = [4];
