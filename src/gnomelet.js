@@ -845,7 +845,11 @@ export const Gnomelet = GObject.registerClass(
                     frameIndex = walkFrames[idx];
                     break;
                 case State.RUNNING:
-                    let runFrames = [0, 1, 2, 3];
+                    let runFrames = [10, 11, 12, 13];
+                    // Fallback to walk frames if run frames don't exist
+                    if (!this._frameImages[10]) {
+                        runFrames = [0, 1, 2, 3];
+                    }
                     let rSpeed = 2; // Run faster!
                     let rIdx = Math.floor(this._animationTimer / rSpeed) % runFrames.length;
                     frameIndex = runFrames[rIdx];
@@ -854,15 +858,14 @@ export const Gnomelet = GObject.registerClass(
                     frameIndex = 4;
                     break;
                 case State.SLEEP:
-                    // Simple "breathing" effect using idle frame (4) and jumping frame (5) as a hack
-                    // Or if we have a frame 8/9 we could use those. For now let's use 4.
-                    frameIndex = 4; 
-                    if (Math.floor(this._animationTimer / 20) % 2 === 0) {
-                        frameIndex = 4;
-                    } else {
-                        // slightly different frame for breathing if available
-                        frameIndex = (this._frameImages[5]) ? 4 : 4; 
+                    let sleepFrames = [4, 8, 4, 9];
+                    // Fallback to idle frame if sleep frames don't exist
+                    if (!this._frameImages[8]) {
+                        sleepFrames = [4];
                     }
+                    let sSpeed = 20; // Slower breathing
+                    let sIdx = Math.floor(this._animationTimer / sSpeed) % sleepFrames.length;
+                    frameIndex = sleepFrames[sIdx];
                     break;
                 case State.JUMPING:
                 case State.FALLING:
